@@ -19,7 +19,9 @@ for line in content: #First loop
         term = sub_line[0].split()[0].lower()
         for i in mykeys:
             if re.search(i,term): # Here we can count the number of spaces or tabs upfront to determine the indentation for Python
-                mymap[i]()
+                left = list((re.findall(r'\s+', line)))
+                nbchars = len(left[0])
+                mymap[i](nbchars)
                 break
         if len(sub_line) > 1:
             print(f'Comment: ',sub_line[1])
