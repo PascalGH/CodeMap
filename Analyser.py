@@ -13,6 +13,7 @@ myeol = Keywords_Map.eol_indicator
 f = open("Analyser.py","r")
 content = f.read().split(myeol)
 
+
 for line in content: #First loop
     sub_line = line.split(mycomment)
     if sub_line[0] != '':  #             First if
