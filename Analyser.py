@@ -1,7 +1,7 @@
 # This is the main file to experiment code analysis
 
 # Import of external files and modules
-import Keywords_Map # Own module where keywords are associated with fonctions to perform
+import Keywords_Map # Own module where keywords are associated with functions to perform
 import re # Regular expressions
 
 mymap = Keywords_Map.keywords_map
