@@ -19,7 +19,7 @@ class block:
         self.blocks = []
         self.comments = []
         self.code = []
-        # Need to add a field to store pure instructions
+        self.instructions = []
 
     def display(self):
         print(f' ' * self.indent * myindent, self.name)
@@ -32,23 +32,26 @@ class block:
 
     def save(self,file):
         cursor = ' ' * self.indent * myindent
-        file.write('--------- Block\n')
-        file.write(cursor + self.name + '\n')
-        file.write('-------------------\n')
-        file.write('--------- Comments\n')
+        file.write(cursor + self.name + '\n' * 2)
         for i in self.comments:
             file.write(cursor + '# ' + i + '\n')
-        file.write('-------------------\n')
-        file.write('--------- Code\n')
+        if len(self.comments) > 0:
+            file.write('\n' * 2)
+        for i in self.instructions:
+            file.write(cursor + i + '\n')
+        if len(self.instructions) > 0:
+            file.write('\n' * 2)
         for i in self.code:
             file.write(cursor + i + '\n')
-        file.write('-------------------\n')
+        if len(self.code) > 0:
+            file.write('\n' * 2)
         for i in self.blocks:
             i.save(file)
 
 
-    def decode(self):
-        indent = 0
+    def blockify(self):
+        # Need to add a return condition if the indent decreases
+        #indent = 0
         while len(self.content) != 0:
             line = self.content.pop(0)
             #self.code.append(line)
@@ -57,25 +60,27 @@ class block:
                     Option 1 - We have an empty line, we will ignore it.
                     Option 2 - We have a comment only in the line and no instruction.
                     Option 3 - We have an instruction only in the line is no comment.
-                    Option 4 - We have a comment in the second part of the line. """
+                    Option 4 - We have an instruction and a comment in the second part of the line. """
             sub_line = line.split(mycomment)
             if sub_line[0] != '':      # Option 3 or option 4
                 term = sub_line[0].split()[0].lower() # Extracting the first word of the line
-                for i in myblockkeys:
+                for i in myblockkeys: # Looking for match in the block definition terms
                     if re.search(i,term): # Match found, we will create a new block
                         left = list((re.findall(r'\s+', line)))  # Looking for the initial spaces
                         nb_chars = len(left[0]) # Number of spaces
                         if nb_chars == 1:
                             nb_chars = 0
-                        indent = int(nb_chars / myindent) # ICalculation of indentation based on the size of an indent
+                        indent = int(nb_chars / myindent) # Calculation of indentation based on the size of an indent
                         newblock = block(term, indent + 1, self.content) # We create a new block, indentation increased
                         self.blocks.append(newblock) # Add the block to the lists of inner ones
-                        newblock.code.append(line) # Adding the line that triggers the block creation
+                        newblock.code.append(line) # Adding the line that triggered the block creation
+                        newblock.instructions.append(sub_line[0])
                         if len(sub_line) > 1:  # Option 2
                             newblock.comments.append(sub_line[1])
-                        self.content = newblock.decode()
+                        self.content = newblock.blockify()
                         return self.content
                 self.code.append(line)
+                self.instructions.append(sub_line[0])
                 if len(sub_line) > 1:  # Option 2 (option 1 is just ignored)
                     self.comments.append(sub_line[1]) # We add the line to the comments of the current block
             else:                      # Option 1 or 2
@@ -88,7 +93,7 @@ f = open("Analyser.py","r")
 content = f.read().split(myeol)
 f.close()
 main_block = block(name = 'Main', indent = 0, content = content)
-content = main_block.decode()
+content = main_block.blockify()
 #main_block.display()
 f = open("Analyser.txt","w")
 main_block.save(f)
