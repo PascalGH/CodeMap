@@ -24,9 +24,12 @@ for line in content: #First loop
                 nbchars = len(left[0])
                 mymap[i](nbchars)
                 break
+            print('gototot')
+
         if len(sub_line) > 1:
             print(f'Comment: ',sub_line[1])
     else:
         if len(sub_line) > 1:
             print(f'Comment: ',sub_line[1])
+        print('ok')
 f.close()
