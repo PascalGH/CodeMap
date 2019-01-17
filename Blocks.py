@@ -57,7 +57,7 @@ class block:
             #self.code.append(line)
             """ Splitting the line to determine if there is a comment (using the character defined as comment indicator)
                 4 options are possible:
-                    Option 1 - We have an empty line, we will ignore it.
+                    Option 1 - We have an empty line, we will ignore it
                     Option 2 - We have a comment only in the line and no instruction.
                     Option 3 - We have an instruction only in the line is no comment.
                     Option 4 - We have an instruction and a comment in the second part of the line. """
@@ -94,7 +94,6 @@ content = f.read().split(myeol)
 f.close()
 main_block = block(name = 'Main', indent = 0, content = content)
 content = main_block.blockify()
-#main_block.display()
 f = open("Analyser.txt","w")
 main_block.save(f)
 f.close()
