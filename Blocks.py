@@ -14,8 +14,9 @@ myindent = Keywords_Map.indent_length
 def get_indent(chain):
     if len(chain) == 0:
         return 0
-    nb_chars = 0
     left = list((re.findall(r'\s+', chain)))  # Looking for the initial spaces
+    if len(left) == 0:
+        return 0
     nb_chars = len(left[0])  # Number of spaces
     if nb_chars == 1:
         nb_chars = 0
@@ -32,14 +33,16 @@ class Block:
         self.code = []
         self.instructions = []
 
+
     def display(self):
-        print(f' ' * self.indent * myindent, self.name)
+        print(' ' * self.indent * myindent + self.name)
         for i in self.comments:
-            print(f'  ' * self.indent * myindent, mycomment, ' ',i)
+            print('  ' * self.indent * myindent + mycomment + ' ' +i)
         for i in self.code:
-            print(f'  ' * self.indent * myindent, ' ',i)
+            print('  ' * self.indent * myindent + ' ' +i)
         for i in self.blocks:
             i.display()
+
 
     def save(self,file):
         cursor = ' ' * self.indent * myindent
@@ -72,7 +75,7 @@ class Block:
                     Option 4 - We have an instruction and a comment in the second part of the line.
             """
             sub_line = line.split(mycomment)
-            if sub_line[0] != '':      # Option 3 or option 4
+            if len(re.findall(r'\S+', sub_line[0])) != 0:      # Option 3 or option 4
                 indent = get_indent(line)
                 if indent < self.indent:
                     self.code.append(line)
@@ -91,7 +94,7 @@ class Block:
                         if len(sub_line) > 1:  # Option 2
                             newblock.comments.append(sub_line[1])
                         self.content = newblock.blockify()
-                        return self.content
+                        #return self.content
                 self.code.append(line)
                 self.instructions.append(sub_line[0])
                 if len(sub_line) > 1:  # Option 2 (option 1 is just ignored)
@@ -110,4 +113,3 @@ content = main_block.blockify()
 file_out = open("Analyser.txt","w")
 main_block.save(file_out)
 file_out.close()
-print('End')
