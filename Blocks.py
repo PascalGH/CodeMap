@@ -54,7 +54,7 @@ class Block:
         if self.name == 'Line':
             file.write(cursor + self.code[0] + '\n')
         else:
-            file.write(cursor + self.name + '\n' * 2)
+            file.write(cursor + self.name + '\n')
         """for i in self.comments:
             file.write(cursor + '# ' + i + '\n')
         if len(self.comments) > 0:
@@ -70,73 +70,42 @@ class Block:
         if len(self.code) > 0:
             file.write('\n' * 2)
         """
-        print(self.code)
-        #file.write(self.code)
         for i in self.blocks:
             i.save(file)
 
     def blockify(self):
-        # Need to add a return condition if the indent decreases
-        #print(self.content)
         while len(self.content) != 0:
             line = self.content[0]
- #           line = self.content.pop(0)
-            # To schrink comment
             """ Splitting the line to determine if there is a comment (using the character defined as comment indicator)
                 4 options are possible:
-                    Option 1 - We have an empty line, we will ignore it.
+                    Option 1 - We have an empty line, we will just add it.
                     Option 2 - We have a comment only in the line and no instruction.
                     Option 3 - We have an instruction only in the line is no comment.
                     Option 4 - We have an instruction and a comment in the second part of the line.
             """
+            match_block = 0
             sub_line = line.split(mycomment)
             if len(re.findall(r'\S+', sub_line[0])) != 0:      # Option 3 or option 4
                 indent = get_indent(line)
                 if indent < self.indent:
-#                    self.code.append(line)
-#                    self.instructions.append(sub_line[0])
-#                    if len(sub_line) > 1:  # Option 2 (option 1 is just ignored)
-#                        self.comments.append(sub_line[1])  # We add the line to the comments of the current block
-# Need not to remove the line from main block                    self.content.add
                     return self.content
                 line = self.content.pop(0)
                 term = sub_line[0].split()[0].lower() # Extracting the first word of the line
                 for i in myblockkeys: # Looking for match in the block definition terms
                     if re.search(i,term): # Match found, we will create a new block
-                        #indent = get_indent(line)
-                        # To schrink comment
-                        newblock = Block(term, indent + 1, self.content, line) # We create a new block, indentation increased
-                        self.blocks.append(newblock) # Add the block to the lists of inner ones
-                        #newblock.code.append(line) # Adding the line that triggered the block creation
-                        #newblock.instructions.append(sub_line[0])
-                        #if len(sub_line) > 1:  # Option 2
-                        #    newblock.comments.append(sub_line[1])
-                        self.content = newblock.blockify()
-                        #return self.content
-                        # To schrink comment
-                    else: # No match found, we create a new line
-                        newblock = Block('Line', self.indent, line, line)  # We create a new block, same indentation
-                        self.blocks.append(newblock)  # Add the block to the lists of inner ones
-                        #newblock.code.append(line)  # Adding the line that triggered the block creation
-                        #newblock.instructions.append(sub_line[0])
-                        #if len(sub_line) > 1:  # Option 2
-                        #    newblock.comments.append(sub_line[1])
-#                self.code.append(line)
-#                self.instructions.append(sub_line[0])
-#                if len(sub_line) > 1:  # Option 2 (option 1 is just ignored)
-#                    self.comments.append(sub_line[1]) # We add the line to the comments of the current block
-            else:                      # Option 1 or 2
+                        new_block = Block('Line', self.indent, line, line)
+                        self.blocks.append(new_block)
+                        new_block = Block(term, self.indent + 1, self.content, line) # We create a new block, indentation increased
+                        self.blocks.append(new_block) # Add the block to the lists of inner ones
+                        self.content = new_block.blockify()
+                        break
+                # Need to find a way to no create the block after when exiting from blockify method
+                new_block = Block('Line', self.indent, line, line)  # We create a new block, same indentation
+                self.blocks.append(new_block)  # Add the block to the lists of inner ones
+            else: # Option 1 or 2, we create a new line block
                 line = self.content.pop(0)
-                newblock = Block('Line', self.indent, line, line)  # We create a new block, indentation increased
-                self.blocks.append(newblock)  # Add the block to the lists of inner ones
-                #newblock.code.append(line)  # Adding the line that triggered the block creation
-                #newblock.instructions.append(sub_line[0])
-                #if len(sub_line) > 1:  # Option 2
-                #    newblock.comments.append(sub_line[1])
-#                if len(sub_line) > 1:  # Option 2 (option 1 is just ignored)
-#                    self.comments.append(sub_line[1]) # We add the line to the comments of the current block
-#                    self.code.append(line) # We add the line to the code of the current block
-#                line = self.content.pop(0)
+                new_block = Block('Line', self.indent, line, line)  # We create a new block, indentation increased
+                self.blocks.append(new_block)  # Add the block to the lists of inner ones
         return self.content # Return the remainder of the content to potentially be analysed in block(s) above
 
 file_in = open("Test.py","r")

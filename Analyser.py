@@ -34,7 +34,7 @@ for line in content: # First for loop, indent 1
             # End of block if, indent 3
         print('tata')
         # End of block if, indent 2
-    # New block else, indent 2
+        # New block else, indent 2
     else:
     # New block if, indent 3
         if len(sub_line) > 1:
